@@ -62,7 +62,7 @@ function handleMouseMove(e) {
 
 document.addEventListener("DOMContentLoaded", () => {
   const columns = document.querySelectorAll(".column");
-  const createTaskButton = document.getElementById("create-task");
+  const createTaskButton = document.getElementById("create-lead");
   const addColumnButton = document.getElementById("add-column");
   const settingsButton = document.getElementById("settings");
   const settingsModal = document.getElementById("settings-modal");

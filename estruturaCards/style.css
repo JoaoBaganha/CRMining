@@ -8,7 +8,7 @@
 
 body {
   display: flex;
-  overflow: hidden; /* Evita a barra de rolagem na tela principal */
+  overflow: scroll; /* Evita a barra de rolagem na tela principal */
   background: rgb(14,14,106);
   background: linear-gradient(146deg, rgba(14,14,106,1) 0%, rgba(25,25,122,1) 35%, rgba(66,66,161,1) 100%);
 }
