@@ -1,11 +1,12 @@
 // Script para Registro de Lead (indexCadastro.html)
 document.addEventListener("DOMContentLoaded", () => {
   const leadForm = document.getElementById('lead-form');
-  
+
   if (leadForm) {
+    // Função para manipular o envio do formulário
     leadForm.addEventListener('submit', function(event) {
       event.preventDefault();
-      
+
       // Captura os dados do formulário
       const leadData = {
         companyName: document.getElementById('company-name').value,
@@ -17,8 +18,8 @@ document.addEventListener("DOMContentLoaded", () => {
         contactPhone: document.getElementById('contact-phone').value,
         observations: document.getElementById('observations').value
       };
-      
-      // Salva no localStorage
+
+      // Salva o lead no localStorage
       let leads = JSON.parse(localStorage.getItem('leads')) || [];
       leads.push(leadData);
       localStorage.setItem('leads', JSON.stringify(leads));
@@ -29,16 +30,15 @@ document.addEventListener("DOMContentLoaded", () => {
       window.location.href = 'indexCrm.html';
     });
   }
-});
 
-// Script para o CRM (indexCrm.html)
-document.addEventListener("DOMContentLoaded", () => {
-  const columns = document.querySelectorAll(".column");
+  // Script para o CRM (indexCrm.html)
+  const kanban = document.querySelector(".kanban");
   const addColumnButton = document.getElementById("add-column");
+  const deleteLeadButton = document.getElementById("delete-lead");
+  let selectedLead = null;
 
   // Função para adicionar um novo lead ao Kanban
   function addLeadToKanban(lead) {
-    const kanban = document.querySelector(".kanban");
     const selectedColumn = kanban.querySelector(".column:first-child"); // Coloca na primeira coluna por padrão
     
     if (selectedColumn) {
@@ -55,29 +55,83 @@ document.addEventListener("DOMContentLoaded", () => {
         <p><strong>Telefone:</strong> ${lead.contactPhone}</p>
         <p><strong>Observações:</strong> ${lead.observations}</p>
       `;
+      // Adiciona evento de clique para seleção
+      newItem.addEventListener("click", function () {
+        if (selectedLead) {
+          selectedLead.classList.remove("selected");
+        }
+        selectedLead = newItem;
+        newItem.classList.add("selected");
+      });
       selectedColumn.appendChild(newItem);
     }
   }
 
-  // Carregar leads do localStorage e adicionar ao Kanban
-  let leads = JSON.parse(localStorage.getItem('leads')) || [];
-  leads.forEach(lead => addLeadToKanban(lead));
+  // Função para adicionar a funcionalidade de drag and drop a uma coluna
+  function enableDragAndDropForColumn(column) {
+    column.addEventListener("dragover", (e) => {
+      e.preventDefault(); // Necessário para permitir o drop
+      const dragging = document.querySelector(".dragging");
+      const applyAfter = getNewPosition(column, e.clientY);
+
+      if (applyAfter) {
+        applyAfter.insertAdjacentElement("afterend", dragging);
+      } else {
+        column.prepend(dragging);
+      }
+    });
+  }
+
+  // Função para carregar leads do localStorage e adicionar ao Kanban
+  if (kanban) {
+    let leads = JSON.parse(localStorage.getItem('leads')) || [];
+    leads.forEach(lead => addLeadToKanban(lead));
+  }
 
   // Função para adicionar uma nova coluna
   function addColumn() {
-    const kanban = document.querySelector(".kanban");
     const newColumn = document.createElement("div");
     newColumn.className = "column";
     newColumn.setAttribute("contenteditable", "true");
-    newColumn.innerHTML = 
-      `<h4 contenteditable="false">Nova Coluna</h4>
-      <div class="item" draggable="true">Novo Card</div>`;
+    newColumn.innerHTML = `<h4>Nova Coluna</h4>`;
     kanban.appendChild(newColumn);
+
+    // Ativa drag and drop na nova coluna
+    enableDragAndDropForColumn(newColumn);
   }
 
+  // Função para excluir o lead selecionado
+  function deleteSelectedLead() {
+    if (selectedLead) {
+      const leadName = selectedLead.querySelector('h4').textContent;
+
+      // Remove visualmente o card
+      selectedLead.remove();
+
+      // Remove do localStorage
+      let leads = JSON.parse(localStorage.getItem('leads')) || [];
+      leads = leads.filter(lead => lead.companyName !== leadName);
+      localStorage.setItem('leads', JSON.stringify(leads));
+
+      alert(`${leadName} foi excluído com sucesso.`);
+      selectedLead = null;
+    } else {
+      alert("Selecione um lead para excluir.");
+    }
+  }
+
+  // Adicionando eventos aos botões
   if (addColumnButton) {
     addColumnButton.addEventListener("click", addColumn);
   }
+
+  if (deleteLeadButton) {
+    deleteLeadButton.addEventListener("click", deleteSelectedLead);
+  }
+
+  // Adiciona drag and drop para todas as colunas iniciais
+  const initialColumns = document.querySelectorAll(".column");
+  initialColumns.forEach(column => enableDragAndDropForColumn(column));
 
   // Funções de arrastar e soltar
   document.addEventListener("dragstart", (e) => {
@@ -86,20 +140,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("dragend", (e) => {
     e.target.classList.remove("dragging");
-  });
-
-  columns.forEach((item) => {
-    item.addEventListener("dragover", (e) => {
-      e.preventDefault(); // Necessário para permitir o drop
-      const dragging = document.querySelector(".dragging");
-      const applyAfter = getNewPosition(item, e.clientY);
-
-      if (applyAfter) {
-        applyAfter.insertAdjacentElement("afterend", dragging);
-      } else {
-        item.prepend(dragging);
-      }
-    });
   });
 
   function getNewPosition(column, posY) {
