@@ -70,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     newColumn.className = "column";
     newColumn.setAttribute("contenteditable", "true");
     newColumn.innerHTML = 
-      `<h4>Nova Coluna</h4>
+      `<h4 contenteditable="false">Nova Coluna</h4>
       <div class="item" draggable="true">Novo Card</div>`;
     kanban.appendChild(newColumn);
   }
