@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (columnCount < 8) {
       const newColumn = document.createElement('div');
-      newColumn.className = 'column';
+      newColumn.className = 'Nova Coluna';
       newColumn.setAttribute('contenteditable', 'true');
       
       // Adiciona o conteúdo da coluna junto com o ícone de lixeira
