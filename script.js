@@ -90,14 +90,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Função para adicionar uma nova coluna
   function addColumn() {
-    const newColumn = document.createElement("div");
-    newColumn.className = "column";
-    newColumn.setAttribute("contenteditable", "true");
-    newColumn.innerHTML = `<h4>Nova Coluna</h4>`;
-    kanban.appendChild(newColumn);
-
-    // Ativa drag and drop na nova coluna
-    enableDragAndDropForColumn(newColumn);
+    const columnCount = document.querySelectorAll('.column').length;
+    
+    if (columnCount < 8) {
+      const newColumn = document.createElement('div');
+      newColumn.className = 'column';
+      newColumn.setAttribute('contenteditable', 'true');
+      
+      // Adiciona o conteúdo da coluna junto com o ícone de lixeira
+      newColumn.innerHTML = `
+        <h4>Nova Coluna</h4>
+        <button class="delete-column" style="background:none;border:none;color:white;cursor:pointer;">
+          🗑️
+        </button>
+      `;
+      
+      // Adiciona a coluna ao kanban
+      kanban.appendChild(newColumn);
+  
+      // Ativa drag and drop na nova coluna
+      enableDragAndDropForColumn(newColumn);
+  
+      // Adiciona o evento de excluir à lixeira
+      newColumn.querySelector('.delete-column').addEventListener('click', function() {
+        newColumn.remove();
+      });
+    } else {
+      alert("limite maximo de 8 colunas.");
+    }
+    
   }
 
   // Função para excluir o lead selecionado
